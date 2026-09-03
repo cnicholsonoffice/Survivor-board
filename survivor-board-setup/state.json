@@ -1,0 +1,6 @@
+{
+  "entry": "Entry 1",
+  "picks": {},
+  "eliminated": false,
+  "notes": "Keys are leg keys: W1..W18 plus TG (Thanksgiving) and XM (Christmas). Values are nflverse team abbreviations, e.g. {\"W1\": \"LAC\"}. This is the ONLY thing that must be maintained by hand -- if it is wrong, the plan is wrong."
+}
