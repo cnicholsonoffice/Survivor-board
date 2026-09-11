@@ -282,6 +282,17 @@ details.sec[open]>summary{border-bottom:1px solid var(--grid);
 .wi-box .eq{font-size:10.5px;color:var(--text-secondary);margin-top:5px;
  font-variant-numeric:tabular-nums;min-height:14px}
 .wi-note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
+
+/* --- one block per entry in the season archive --- */
+.entry{border:1px solid var(--border);border-radius:10px;padding:11px 12px;
+ margin-bottom:12px;background:var(--plane)}
+.entry:last-child{margin-bottom:0}
+.ehead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.ehead .elbl{font-size:13px;font-weight:700;letter-spacing:-.01em}
+.ehead .esub{font-size:11px;color:var(--muted);margin-left:auto}
+.pill.on{border-color:var(--series-1);color:var(--series-1)}
+.pill.out{border-color:var(--critical);color:var(--critical)}
+.entry .note{margin-bottom:0}
 .wi-bar{height:6px;border-radius:3px;background:var(--grid);margin-top:8px;
  overflow:hidden}
 .wi-bar i{display:block;height:100%;background:var(--series-1)}
@@ -296,7 +307,7 @@ details.sec[open]>summary{border-bottom:1px solid var(--grid);
   <div>
     <h1>Circa Survivor 2026 — Week 1</h1>
     <div class="sub">Leg 1 of 20 · updated
-      2026-09-11 18:02 · priced off moneylines ·
+      2026-09-11 18:44 · priced off moneylines ·
       103 posted moneylines, 54 spreads,
       2 results in the fit</div>
   </div>
@@ -395,11 +406,15 @@ details.sec[open]>summary{border-bottom:1px solid var(--grid);
 
 <details class="sec" id="season"><summary><h2>Season so far</h2>
   <span class="chev" aria-hidden="true"></span></summary><div class="secbody">
-  <p class="note">The archive. Each completed leg is frozen here with the pick
+  <p class="note">One block per entry. Everything else on this page — the
+  recommendation, the plan, the sandbox — is solved for <b>Survivor</b> only,
+  exactly as the model has always worked. <b>Mini Survivor</b> is kept here as
+  a record so both entries live in one place; its picks never enter the maths.
+  The archive. Each completed leg is frozen here with the pick
   you locked, the win probability the model gave it at the time, what the model
   itself wanted, and what actually happened — so you can see whether losses were
   bad picks or bad luck.</p>
-  <p class="note">Nothing archived yet — this fills in as legs complete. Each finished leg is snapshotted with the pick you made, the win probability the model gave it at the time, the team it recommended, and the actual result. Lock your pick each week with <code>--lock</code> and the record writes itself.</p>
+  <div class="entry"><div class="ehead"><span class="elbl">Survivor</span><span class="pill on">the model plans this one</span><span class="esub">0 of 20 teams used</span></div><p class="note">Nothing archived yet — this fills in as legs complete. Each finished leg is snapshotted with the pick you made, the win probability the model gave it at the time, the team it recommended, and the actual result. Tell me the team you submitted and the record writes itself.</p></div><div class="entry"><div class="ehead"><span class="elbl">Mini Survivor</span><span class="pill">tracked only</span><span class="esub">0 of 20 teams used</span></div><p class="note">Nothing archived yet — this fills in as legs complete. Each finished leg is snapshotted with the pick you made, the win probability the model gave it at the time, the team it recommended, and the actual result. Tell me the team you submitted and the record writes itself.</p></div>
 </div></details>
 
 <details class="sec" id="method"><summary><h2>How much to trust this</h2>
