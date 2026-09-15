@@ -103,6 +103,11 @@ def _game_key(r) -> tuple:
 def picks_table(payload: dict) -> str:
     R = payload["ranked"]
     best = R[0]["path_prob"]
+    # "Usable" = how many remaining legs this team is still a real option in.
+    # Comes from the team profiles, which count the legs where it clears the
+    # same win-probability bar the planner uses.
+    usable = {p["team"]: p.get("windows")
+              for p in (payload.get("profiles") or [])}
 
     # ONE ROW PER TEAM, every team playing, ranked best first, in a box that
     # scrolls. Earlier versions cut the list or folded half of it into a
@@ -113,7 +118,7 @@ def picks_table(payload: dict) -> str:
             '<th class="l">Matchup</th><th>Moneyline</th><th>Spread</th>'
             '<th>Win%</th>'
             '<th class="l">Season equity if picked</th><th>Kept</th>'
-            '<th>Est. field</th><th>EV#</th></tr></thead>')
+            '<th>Usable</th><th>Est. field</th><th>EV#</th></tr></thead>')
 
     def row(r):
         w = max(3.0, 100 * r["path_prob"] / best)
@@ -129,11 +134,12 @@ def picks_table(payload: dict) -> str:
             f'<td>{r["rank"]}</td>'
             f'<td class="l"><span class="tm">{esc(r["team"])}</span></td>'
             f'<td class="l" style="color:var(--text-secondary)">{esc(r["opponent"])}</td>'
-            f'<td>{money_str(r.get("ml"))}{src_badge(r["source"])}</td>'
+            f'<td>{money_str(r.get("moneyline", r.get("ml")))}{src_badge(r["source"])}</td>'
             f'<td>{spread_str(r["spread"])}</td>'
             f'<td>{pct(r["win_prob"])}</td>'
             f'<td class="bar"{tip_attr(tipt)}><i style="width:{w:.0f}%"></i></td>'
             f'<td>{pct(r["future_cost"],0)}</td>'
+            f'<td>{usable.get(r["team"]) if usable.get(r["team"]) is not None else "—"}</td>'
             f'<td>{pct(r["pick_share"],0)}</td>'
             f'<td style="color:{ev_col}">{r["ev_rank"]}</td></tr>')
 
@@ -154,6 +160,11 @@ def picks_table(payload: dict) -> str:
         '<div><b>Kept</b> — that bar as a share of the best bar. 100% means '
         'the pick costs you nothing. 85% means choosing it throws away 15% of '
         'what your entry is currently worth.</div>'
+        '<div><b>Usable</b> — how many of the remaining legs this team is '
+        'still a genuine option in, counting every leg where it is at least '
+        '65% to win. A 1 is a warning: spend them now or you will probably '
+        'never get to spend them at all. A high number means they keep, so '
+        'there is no rush.</div>'
         '<div><b>Est. field</b> — modelled guess at what share of the ~14,000 '
         'entries take this team. Not published by Circa, so treat it as a '
         'rough shape.</div>'
@@ -195,7 +206,7 @@ def team_cards(payload: dict) -> str:
 
         body = "".join([
             cell("Wins this week", pct(r["win_prob"]),
-                 f'{money_str(r.get("ml"))} · {spread_str(r["spread"])} — '
+                 f'{money_str(r.get("moneyline", r.get("ml")))} · {spread_str(r["spread"])} — '
                  + {"ml": "de-vigged from the posted moneyline",
                     "line": "converted from the posted spread",
                     }.get(r["source"], "projected from power ratings")),
