@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "primary": "survivor",
+  "entries": {
+    "survivor": {
+      "label": "Survivor",
+      "picks": {
+        "W1": "JAX"
+      },
+      "history": {
+        "W1": {
+          "pick": "JAX",
+          "recommended": "PIT",
+          "survival": 0.0021288366203803246,
+          "locked_on": "2026-09-11",
+          "opponent": "vs CLE",
+          "spread": 8.5,
+          "ml": -455.0,
+          "win_prob": 0.7970261099376781,
+          "source": "ml",
+          "path_prob": 0.0020534635605290153,
+          "rank_of_pick": 3,
+          "won": true,
+          "score": "CLE 10 @ JAX 34"
+        }
+      },
+      "eliminated": false
+    },
+    "mini-survivor": {
+      "label": "Mini Survivor",
+      "picks": {
+        "W1": "LAC"
+      },
+      "history": {
+        "W1": {
+          "pick": "LAC",
+          "recommended": "PIT",
+          "survival": 0.0018209037348970666,
+          "locked_on": "2026-09-11",
+          "opponent": "vs ARI",
+          "spread": 9.5,
+          "ml": -500.0,
+          "win_prob": 0.810705701698854,
+          "source": "ml",
+          "path_prob": 0.0018034994684671035,
+          "rank_of_pick": 2,
+          "won": false,
+          "score": "ARI 26 @ LAC 14"
+        }
+      },
+      "eliminated": false
+    }
+  },
+  "notes": "Keys are leg keys: W1..W18 plus TG (Thanksgiving) and XM (Christmas). Values are nflverse team abbreviations, e.g. {\"W1\": \"LAC\"}. This is the ONLY thing that must be maintained by hand -- if it is wrong, the plan is wrong."
+}
