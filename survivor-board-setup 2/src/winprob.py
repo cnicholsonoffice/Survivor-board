@@ -174,13 +174,51 @@ def implied(odds: float) -> float:
     return (-o) / ((-o) + 100.0) if o < 0 else 100.0 / (o + 100.0)
 
 
+def _shin_z(q: np.ndarray, tot: float, tol: float = 1e-12) -> float:
+    """Solve Shin's z (the insider-money share) so the fair probs sum to 1.
+
+    p_i(z) = (sqrt(z^2 + 4(1-z) q_i^2 / Q) - z) / (2(1-z))
+
+    sum p_i is strictly decreasing in z: at z=0 it equals sqrt(Q) > 1, and it
+    falls below 1 well before z=0.5 for any book we would accept. So a plain
+    bisection on [0, 0.5] is enough -- no solver dependency, no failure mode.
+    """
+    def total(z: float) -> float:
+        if z <= 0.0:
+            return float(np.sum(q / np.sqrt(tot)))
+        return float(np.sum(
+            (np.sqrt(z * z + 4.0 * (1.0 - z) * q * q / tot) - z) / (2.0 * (1.0 - z))))
+
+    lo, hi = 0.0, 0.5
+    if total(hi) > 1.0:            # margin too wide for the bracket
+        return hi
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        if total(mid) > 1.0:
+            lo = mid
+        else:
+            hi = mid
+        if hi - lo < tol:
+            break
+    return 0.5 * (lo + hi)
+
+
 def devig_moneyline(home_ml: float, away_ml: float) -> tuple[float, float]:
-    """Two-way moneyline -> fair win probabilities, vig removed proportionally.
+    """Two-way moneyline -> fair win probabilities, vig removed by Shin's method.
 
     The moneyline is a direct price on the only question this contest asks --
     does this team win outright -- whereas a spread has to be translated into
     a win probability through a margin model. Fewer assumptions between the
     market and the number, so where a moneyline exists it is the better input.
+
+    Why Shin rather than dividing each side by the total: a book's margin is
+    not spread evenly across the two prices. Longshots are systematically
+    overpriced, because a book shades against the possibility that some of the
+    money against a big favourite is better informed than it is. Shin models
+    that explicitly as a share z of insider money and backs it out, which pulls
+    proportionally more of the juice off the longshot and leaves the favourite
+    a little higher than a flat proportional de-vig would. On the heavy
+    favourites this contest lives on, that difference is roughly a point.
 
     NFL moneylines push on a tie, so these are probabilities conditional on a
     decisive result. The caller scales by (1 - P(tie)) to get the survival
@@ -190,7 +228,11 @@ def devig_moneyline(home_ml: float, away_ml: float) -> tuple[float, float]:
     tot = h + a
     if not (1.0 < tot < 1.35):     # implausible book -- refuse rather than guess
         raise ValueError(f"moneyline pair does not devig sanely: {home_ml}/{away_ml}")
-    return h / tot, a / tot
+    q = np.array([h, a], dtype=float)
+    z = _shin_z(q, tot)
+    p = (np.sqrt(z * z + 4.0 * (1.0 - z) * q * q / tot) - z) / (2.0 * (1.0 - z))
+    p = p / p.sum()                # kill any residual bisection drift
+    return float(p[0]), float(p[1])
 
 
 def survival_prob(margin_model: MarginModel, spread_for_team: float) -> float:
