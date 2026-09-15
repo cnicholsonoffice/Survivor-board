@@ -34,11 +34,25 @@ import pandas as pd
 
 import data
 
-# Circa's field is sharper than a typical office pool, so shares are less
-# concentrated than the classic "40% on the biggest favorite" pattern.
-CONCENTRATION = 1.55      # softmax temperature on the win-prob logit
-BRAND_WEIGHT = 0.45       # public pull toward famous teams
-FIELD_ENTRIES = 14000     # approximate Circa Survivor field
+# Fitted against Circa's published Week 1 2026 selections (24,999 picks across
+# 32 teams). The previous values were guesses, and they were wrong in both
+# directions at once.
+#
+# The old comment here reasoned that a sharp field would spread out more than
+# a casual one. The opposite is true: a sharp field converges HARDER, because
+# there is more agreement about which play is best. Circa put 32.5% on the
+# Jaguars and 30.3% on the Chargers -- 63% of the entire field on two teams,
+# where the old parameters predicted 14% for the leader.
+#
+# BRAND_WEIGHT fits to zero. A $1,000-per-entry field does not pick teams for
+# being famous; the fame term was importing office-pool intuition that does
+# not apply here. data.BRAND is left in place but is currently inert, so a
+# later refit can revive it if more weeks say otherwise.
+#
+# One week of data. Re-fit as more arrive -- see calibrate_popularity.py.
+CONCENTRATION = 3.45      # softmax temperature on the win-prob logit
+BRAND_WEIGHT = 0.00       # public pull toward famous teams (fits to zero)
+FIELD_ENTRIES = 24925     # Circa live entries after Week 1 2026
 FIELD_SURVIVAL = 0.00022  # rough P(a typical entry runs the table)
 
 
