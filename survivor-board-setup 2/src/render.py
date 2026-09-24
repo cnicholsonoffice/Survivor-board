@@ -639,3 +639,69 @@ def _entry_history(payload: dict, e: dict) -> str:
                    f'signal.{tail}</p>')
     return (summary + f'<div class="scroll"><table>{head}'
             f'<tbody>{"".join(rows)}</tbody></table></div>')
+
+
+def fade_table(payload: dict, limit: int = 16) -> str:
+    """Best remaining spots to pick AGAINST each team.
+
+    The model never reads an injury report -- a damaged team only reaches it
+    once the market reprices them, and for unlined legs not even then. So this
+    table is the manual hook: when news says a team is broken, this is where
+    you look to find the leg that profits from it.
+
+    For every team, scan the remaining legs for games where an UNUSED team
+    faces them, and keep the two best by win probability. Static HTML, no
+    script, no tooltip attributes.
+    """
+    G = payload["grid"]
+    teams, keys = G["teams"], G["keys"]
+    used = set(payload.get("used", []))
+    cur = payload.get("leg_key")
+    ti = {t: i for i, t in enumerate(teams)}
+
+    rows_data = []
+    for target in teams:
+        spots = []
+        for j, k in enumerate(keys):
+            for t in teams:
+                if t == target or t in used:
+                    continue
+                opp = G["opp"][ti[t]][j]
+                p = G["p"][ti[t]][j]
+                if not opp or p is None or target not in str(opp):
+                    continue
+                # the grid stores source as a single letter; src_badge wants
+                # the long form used everywhere else on the page
+                src = {"m": "ml", "l": "line", "p": "proj"}.get(
+                    str(G["src"][ti[t]][j]), str(G["src"][ti[t]][j]))
+                spots.append((float(p), k, t, str(opp), src))
+        if not spots:
+            continue
+        spots.sort(key=lambda r: -r[0])
+        rows_data.append((target, spots[:2]))
+
+    rows_data.sort(key=lambda r: -r[1][0][0])
+    rows_data = rows_data[:limit]
+
+    rows = []
+    for target, spots in rows_data:
+        cells = []
+        for p, k, t, opp, src in spots:
+            home = not str(opp).strip().startswith("@")
+            cells.append(
+                f'<td class="l">{esc(t)} {"vs" if home else "@"} {esc(target)}'
+                f' <span class="pill">{pct(p, 0)}</span><br>'
+                f'<span class="note">{esc(leg_name(payload, k))}'
+                f'{" · now" if k == cur else ""} {src_badge(src)}</span></td>')
+        while len(cells) < 2:
+            cells.append('<td class="l">—</td>')
+        rows.append(f'<tr><td class="rl">{esc(target)}</td>'
+                    + "".join(cells) + "</tr>")
+
+    return (f'<div class="scroll"><table><thead><tr>'
+            f'<th class="rl">Fade</th><th class="l">Best spot against them</th>'
+            f'<th class="l">Next best</th></tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div>'
+            f'<div class="legend"><span>Teams you have already used are '
+            f'excluded — every spot listed is one you can still take.</span>'
+            f'</div>')

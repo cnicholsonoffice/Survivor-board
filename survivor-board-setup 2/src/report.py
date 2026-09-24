@@ -160,6 +160,19 @@ def write_dashboard(payload: dict, path: str) -> str:
         'not this week carry a warning at the top of the card.</p>'
         f'{R.team_cards(payload)}')
 
+    sec_fade = R.sec(
+        "fade", "Best spots to pick against a team",
+        '<p class="note"><b>This table is a manual hook, not a model output.</b> '
+        'The model never reads an injury report. A damaged team only reaches the '
+        'numbers once the market reprices them, and for a leg with no posted line '
+        'that never happens at all — so a team can be visibly broken in the news '
+        'and still look average here. Use this the other way round: when you '
+        'learn a team is hurt, find them below and see which leg profits from it. '
+        'Rows are sorted by the best available spot. Ignore the probabilities on '
+        'a <code>proj</code> row as a forecast — treat them as a shortlist of '
+        'where to look.</p>'
+        f'{R.fade_table(payload)}')
+
     sec_schedule = R.sec(
         "schedule", "The 2026 schedule",
         '<p class="note">Every team, every leg, opponent only. Useful for the '
@@ -213,6 +226,7 @@ def write_dashboard(payload: dict, path: str) -> str:
 {sec_why}
 {sec_sandbox}
 {sec_teams}
+{sec_fade}
 
 <details class="sec" id="compare"><summary><h2>All 32 teams, compared</h2>
   <span class="chev" aria-hidden="true"></span></summary><div class="secbody">
